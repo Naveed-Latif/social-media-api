@@ -4,6 +4,30 @@ from typing import Optional
 from datetime import datetime
 
 
+class CreatUser(BaseModel):
+    email: EmailStr
+    password: str
+
+    class Config:
+        from_attributes = True
+
+
+class UserResponse(BaseModel):
+    id: int
+    created_at: datetime
+    email: EmailStr
+    message: str = "User created successfully"
+
+
+class loginUser(BaseModel):
+    email: EmailStr
+    password: str
+
+    class Config:
+        from_attributes = True
+
+
+
 class PostParams(BaseModel):
     title: str
     content: str
@@ -28,29 +52,9 @@ class UpdatePostParams(PostParams):
 class PostResponse(PostParams):
     created_at: datetime
     owner_id: int
+    owner: UserResponse
 
     class config:
-        from_attributes = True
-
-
-class CreatUser(BaseModel):
-    email: EmailStr
-    password: str
-
-    class Config:
-        from_attributes = True
-
-
-class UserResponse(BaseModel):
-    email: EmailStr
-    message: str = "User created successfully"
-
-
-class loginUser(BaseModel):
-    email: EmailStr
-    password: str
-
-    class Config:
         from_attributes = True
 
 
