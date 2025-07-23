@@ -13,10 +13,13 @@ class CreatUser(BaseModel):
 
 
 class UserResponse(BaseModel):
+    email: EmailStr
+    message: str = "User created successfully"
+
+class UserDetails(BaseModel):
     id: int
     created_at: datetime
     email: EmailStr
-    message: str = "User created successfully"
 
 
 class loginUser(BaseModel):
@@ -52,7 +55,7 @@ class UpdatePostParams(PostParams):
 class PostResponse(PostParams):
     created_at: datetime
     owner_id: int
-    owner: UserResponse
+    owner: UserDetails
 
     class config:
         from_attributes = True
