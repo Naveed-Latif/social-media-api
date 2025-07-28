@@ -2,15 +2,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
+from .config import settings
 
 
 url = URL.create(
-    drivername="postgresql",
-    username="postgres",
-    password="Lionwox123",
-    host="localhost",
-    port=5432,
-    database="FastAPI",
+    drivername=settings.database_driver_name,
+    username=settings.database_username,
+    password=settings.database_password,
+    host=settings.database_hostname,
+    port=settings.database_port,
+    database=settings.database_name,
 
 )
 

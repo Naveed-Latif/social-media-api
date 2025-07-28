@@ -3,20 +3,21 @@ from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from . import schemas
+from .config import settings  # Make sure settings is imported from your config module
 
 # OAuth2 scheme for token extraction from requests
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # JWT configuration constants
-SECRET_KEY = "36cefccdbf319da1fa9c3f708e702056568d6fb5459e311c600a7644f1880ea8"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 
 def create_access_token(data: dict):
     
     to_encode = data.copy()
-    expiry = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expiry = datetime.now(timezone.utc) + timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expiry})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

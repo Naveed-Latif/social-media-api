@@ -9,14 +9,14 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[schemas.PostResponse])
-async def Post(db: Session = Depends(get_db)):
-    posts = db.query(models.Posts).all()
+async def Post(db: Session = Depends(get_db), limit = 1, skip = 0):
+    posts = db.query(models.Posts).limit(limit).offset(skip).all()
     return posts
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
 def create_post(post: schemas.PostParams, db: Session = Depends(get_db), current_user = Depends(oauth2.get_current_user)):
-    new_post = models.Posts(owner_id= current_user, **post.model_dump())
+    new_post = models.Posts(owner_id= current_user.user_id, **post.model_dump())
     print(current_user)
     db.add(new_post)
     db.commit()
