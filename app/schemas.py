@@ -1,5 +1,6 @@
 import re
 from pydantic import BaseModel, EmailStr, field_validator
+from pydantic.types import conint
 from typing import Optional
 from datetime import datetime
 
@@ -60,6 +61,12 @@ class PostResponse(PostParams):
     class config:
         from_attributes = True
 
+class PostOutput(PostParams):
+    Post: PostResponse
+    votes: int
+    
+    class Config:
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
@@ -71,3 +78,8 @@ class TokenData(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(le=1) # type: ignore

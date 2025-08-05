@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
+from sqlalchemy import func
 from sqlalchemy.orm import Session 
 from .. import models, schemas, oauth2
 from ..database import get_db 
@@ -8,10 +9,21 @@ router = APIRouter(
     tags=["Posts"]
 )
 
-@router.get("/", response_model=list[schemas.PostResponse])
-async def Post(db: Session = Depends(get_db), limit = 1, skip = 0):
-    posts = db.query(models.Posts).limit(limit).offset(skip).all()
-    return posts
+# @router.get("/", response_model=list[schemas.PostResponse])
+@router.get("/", )
+async def Post(db: Session = Depends(get_db)):
+    # posts = db.query(models.Posts).limit(limit).offset(skip).all()
+    
+    results = db.query(models.Posts, func.count(models.Vote.post_id).label("votes")).join(models.Vote,models.Vote.post_id == models.Posts.id, isouter=True).group_by(models.Posts.id).all()
+    
+    # results = db.query(    models.Posts.title,    func.count(models.Vote.post_id).label("votes")).outerjoin(    models.Vote, models.Vote.ost_id == models.Posts.id).group_by(    models.Posts.id).all()
+    # print(results)
+    posts_with_votes = [
+        {**post.__dict__, "votes": votes}
+        for post, votes in results
+    ]
+
+    return posts_with_votes
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.PostResponse)
@@ -31,7 +43,7 @@ def create_post(post: schemas.PostParams, db: Session = Depends(get_db), current
     return new_post
 
 
-@router.get("/{id}", response_model=schemas.PostResponse)
+@router.get("/{id}", )
 def get_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Posts).filter(models.Posts.id == id).first()
     if not post:
