@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from requests import Session
 from . import schemas , models
+from .database import get_db
 from .config import settings  # Make sure settings is imported from your config module
 
 # OAuth2 scheme for token extraction from requests
@@ -26,27 +27,32 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-def verify_access_token(token: str, credentials_exception):
+def verify_access_token(token: str, credentials_exception, db):
   
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = str(payload.get("user_id"))
+        
         if user_id is None:
             raise credentials_exception
-        token_data = schemas.TokenData(user_id=user_id)
+               # 🔍 CRITICAL FIX: Get actual user from database
+        user = db.query(models.User).filter(models.User.id == user_id).first()
+        if user is None:
+            raise credentials_exception
+        
     except JWTError:
         raise credentials_exception
-    return token_data
+    return user  # Return User object, not TokenData!
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db) ):
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    return verify_access_token(token, credentials_exception)
+    return verify_access_token(token, credentials_exception, db)
 
 
 def create_refresh_token(user_id: int, db: Session):
