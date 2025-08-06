@@ -91,3 +91,4 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     response.delete_cookie("refresh_token")
     
     return {"message": "Logged out successfully"}
+

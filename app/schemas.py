@@ -57,8 +57,9 @@ class PostResponse(PostParams):
     created_at: datetime
     owner_id: int
     owner: UserDetails
+    votes :Optional[int] = 0  # Default to 0 if not provided
 
-    class config:
+    class Config:
         from_attributes = True
 
 class PostOutput(PostParams):
