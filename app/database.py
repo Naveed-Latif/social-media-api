@@ -26,7 +26,7 @@ def get_db():
     finally:
         db.close()
         
-        
+         
 # while True:
 #     try:
 #         conn = psycopg2.connect(host='localhost', database='FastAPI', user='postgres',
